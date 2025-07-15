@@ -1,18 +1,27 @@
-require('dotenv').config();
-const express = require('express');
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
+import cors from 'cors';
+import { models } from './models/index.js';
+import { connectDB } from './config/connection.js';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
-const { connectDB } = require('./config/connection');
+
+// Load environment variables
+dotenv.config();
 
 // Connect to the database
 connectDB();
+
 
 // Middleware to parse JSON requests
 app.use(express.json());
 // Middleware to parse URL-encoded requests
 app.use(express.urlencoded({ extended: true }));
 // Middleware to handle CORS
-const cors = require('cors');
 app.use(cors());
 // Middleware to serve static files
 app.use(express.static('public'));
