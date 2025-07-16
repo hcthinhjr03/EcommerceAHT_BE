@@ -1,7 +1,6 @@
-
 import dotenv from 'dotenv';
 dotenv.config();
-
+import authRoutes from './routes/auth.js';
 import express from 'express';
 import cors from 'cors';
 import { models } from './models/index.js';
@@ -26,6 +25,9 @@ app.use(cors());
 // Middleware to serve static files
 app.use(express.static('public'));
 
+
+// Đăng ký route cho API login
+app.use('/api/v1', authRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
