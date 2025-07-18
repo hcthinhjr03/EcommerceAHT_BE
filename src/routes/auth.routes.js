@@ -18,4 +18,6 @@ router.post('/forgot-password', forgotPassword);
 //POST /api/v1/reset-password
 router.post('/reset-password', resetPassword); 
 
-export default router;
+export const path = '/auth';
+
+export { router };
