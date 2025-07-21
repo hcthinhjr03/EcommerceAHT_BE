@@ -7,7 +7,7 @@ class CategoryProduct extends Model {
             CategoryProduct.belongsTo(models.Category, { foreignKey: 'categoryId' });
         }
         if (models.Product) {
-            CategoryProduct.belongsTo(models.Product, { foreignKey: 'productId' });
+            CategoryProduct.belongsTo(models.Product, { foreignKey: 'productId', onDelete: 'CASCADE' });
         }
     }
 }

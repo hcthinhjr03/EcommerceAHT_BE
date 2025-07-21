@@ -4,7 +4,7 @@ import { sequelize } from '../config/connection.js';
 class ProductImage extends Model {
     static associate(models) {
         if (models.Product) {
-            ProductImage.belongsTo(models.Product, { foreignKey: 'productId' });
+            ProductImage.belongsTo(models.Product, { foreignKey: 'productId', onDelete: 'CASCADE' });
         }
     }
 }
@@ -36,3 +36,5 @@ ProductImage.init({
     tableName: 'product_images',
     timestamps: true,
 });
+
+export default ProductImage;

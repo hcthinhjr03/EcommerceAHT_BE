@@ -22,7 +22,7 @@ class Product extends Model {
             });
         }
         if (models.ProductImage) {
-            Product.hasMany(models.ProductImage, { foreignKey: 'productId' });
+            Product.hasMany(models.ProductImage, { foreignKey: 'productId', as: 'images', onDelete: 'CASCADE' });
         }
     }
 }

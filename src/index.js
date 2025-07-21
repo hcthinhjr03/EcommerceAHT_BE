@@ -1,7 +1,5 @@
 import dotenv from 'dotenv';
 dotenv.config();
-//import authRoutes from './routes/auth.routes.js';
-//import customerRoutes from './routes/customers.routes.js';
 import express from 'express';
 import cors from 'cors';
 import { models } from './models/index.js';
