@@ -47,6 +47,16 @@ Category.init({
             isUrl: true // Thumbnail must be a valid URL
         }
     },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
+    }
 }, {
     sequelize,
     modelName: 'Category',
