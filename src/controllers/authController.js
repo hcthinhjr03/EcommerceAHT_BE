@@ -7,19 +7,19 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     // Tìm user theo email
-    const user = await models.Customer.findOne({ where: { email } });
-    if (!user) {
+    const customer = await models.Customer.findOne({ where: { email } });
+    if (!customer) {
       return res
         .status(401)
         .json({ message: "Email or password is incorrect!" });
     }
     // Nếu mật khẩu không khớp, trả về lỗi
-    if (user.password !== password) {
+    if (customer.password !== password) {
       return res
         .status(401)
         .json({ message: "Email or password is incorrect!" });
     }
-    res.json({ user, message: "Login successful!" });
+    res.json({ customer, message: "Login successful!" });
   } catch (error) {
     res.status(500).json({ message: "Login failed", error: error.message });
   }
@@ -51,15 +51,15 @@ export const register = async (req, res) => {
   const { email, password, fullName } = req.body;
   try {
     // Kiểm tra xem email đã tồn tại chưa
-    const existingUser = await models.Customer.findOne({ where: { email } });
-    if (existingUser) {
+    const existingCustomer = await models.Customer.findOne({ where: { email } });
+    if (existingCustomer) {
       return res.status(400).json({ message: "Email already in use!" });
     }
     // Tạo mới user
-    const newUser = await models.Customer.create({ email, password, fullName });
+    const newCustomer = await models.Customer.create({ email, password, fullName });
     res
       .status(201)
-      .json({ user: newUser, message: "Registration successful!" });
+      .json({ customer: newCustomer, message: "Registration successful!" });
   } catch (error) {
     res
       .status(500)
@@ -71,17 +71,17 @@ export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
     // Tìm user theo email
-    const user = await models.Customer.findOne({ where: { email } });
-    if (!user) {
+    const customer = await models.Customer.findOne({ where: { email } });
+    if (!customer) {
       return res.status(404).json({ message: "Email not found!" });
     }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpire = Date.now() + 5 * 60 * 1000; // 5 phút
 
     // Lưu OTP vào DB
-    user.resetOTP = otp;
-    user.resetOTPExpire = new Date(otpExpire);
-    await user.save();
+    customer.resetOTP = otp;
+    customer.resetOTPExpire = new Date(otpExpire);
+    await customer.save();
 
     // Gửi OTP qua email
     const transporter = nodemailer.createTransport({
@@ -116,25 +116,25 @@ export const resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
   try {
-    const user = await models.Customer.findOne({ where: { email } });
+    const customer = await models.Customer.findOne({ where: { email } });
 
-    if (!user || !user.resetOTP || !user.resetOTPExpire) {
+    if (!customer || !customer.resetOTP || !customer.resetOTPExpire) {
       return res.status(400).json({ message: 'Invalid request!' });
     }
 
     // Kiểm tra OTP và thời gian hết hạn
     const now = Date.now();
-    if (user.resetOTP !== otp || now > new Date(user.resetOTPExpire).getTime()) {
+    if (customer.resetOTP !== otp || now > new Date(customer.resetOTPExpire).getTime()) {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
     //Cập nhật mật khẩu
-    user.password = newPassword;
+    customer.password = newPassword;
 
     // Xoá OTP
-    user.resetOTP = null;
-    user.resetOTPExpire = null;
-    await user.save();
+    customer.resetOTP = null;
+    customer.resetOTPExpire = null;
+    await customer.save();
 
     res.json({ message: 'Password has been reset successfully' });
 
