@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCategories, createCategory } from '../controllers/categoryController.js';
+import { getCategories, createCategory, updateCategory, deleteCategory } from '../controllers/categoryController.js';
 
 const router = express.Router();
 
@@ -10,10 +10,10 @@ router.get('/', getCategories);
 router.post('/', createCategory);
 
 // PATCH /api/v1/category/:id
-//router.patch('/:id', updateCategory);
+router.patch('/:id', updateCategory);
 
 // DELETE /api/v1/category/:id
-//router.delete('/:id', deleteCategory);
+router.delete('/:id', deleteCategory);
 
 export const path = '/category';
 export { router };
