@@ -56,6 +56,39 @@ export const getCategories = async (req, res) => {
   }
 };
 
+export const getCategoryById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const category = await models.Category.findByPk(id);
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+
+    }
+    const allCategories = await models.Category.findAll({ 
+      order: [["id", "ASC"]],
+    });
+    const buildParentBranch = (categoryId, allCats) => {
+      const node = allCats.find((cat) => cat.id === categoryId);
+      if (!node) return null;
+      if (node.parentId === null || node.parentId === undefined) {
+        return node.toJSON();
+      }
+      return {
+        ...node.toJSON(),
+        parentCategory: buildParentBranch(node.parentId, allCats),
+      };
+    };
+    const parentBranch = buildParentBranch(category.parentId, allCategories);
+    const result = {
+      ...category.toJSON(),
+      parentCategory: parentBranch
+    };
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching category", error });
+  }
+};
+
 export const createCategory = async (req, res) => {
   const { name, thumbnail, parentId } = req.body;
   try {
