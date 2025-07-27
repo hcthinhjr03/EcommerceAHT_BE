@@ -129,7 +129,7 @@ export const createProduct = async (req, res) => {
     discountPercent,
     description,
     images,
-    category,
+    categories,
   } = req.body;
 
   try {
@@ -154,9 +154,9 @@ export const createProduct = async (req, res) => {
     }
 
     // Gán category nếu có (giả sử quan hệ N-N qua ProductCategory)
-    if (Array.isArray(category) && category.length > 0) {
+    if (Array.isArray(categories) && categories.length > 0) {
       await Promise.all(
-        category.map((catId) =>
+        categories.map((catId) =>
           models.CategoryProduct.create({
             categoryId: catId,
             productId: newProduct.id,
@@ -178,9 +178,8 @@ export const createProduct = async (req, res) => {
     res
       .status(500)
       .json({
-        message: "Failed to create product",
-        error: error.message,
-        details: error.errors?.map((e) => e.message) || null,
+        message: error.errors?.[0]?.message || "Failed to create product",
+        error: error.message
       });
   }
 };
