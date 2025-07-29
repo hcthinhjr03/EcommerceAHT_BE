@@ -195,7 +195,7 @@ export const updateProduct = async (req, res) => {
     discountPercent,
     description,
     images,
-    category
+    categories
   } = req.body;
 
   try {
@@ -230,13 +230,13 @@ export const updateProduct = async (req, res) => {
     }
 
     // 4. Cập nhật lại danh mục
-    if (Array.isArray(category)) {
+    if (Array.isArray(categories)) {
       // Xoá liên kết danh mục cũ
       await models.CategoryProduct.destroy({ where: { productId: id } });
 
       // Thêm liên kết mới
       await Promise.all(
-        category.map(catId =>
+        categories.map(catId =>
           models.CategoryProduct.create({ productId: id, categoryId: catId })
         )
       );
