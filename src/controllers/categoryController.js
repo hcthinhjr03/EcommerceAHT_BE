@@ -62,11 +62,12 @@ export const getCategoryById = async (req, res) => {
     const category = await models.Category.findByPk(id);
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
-
     }
+    
     const allCategories = await models.Category.findAll({ 
       order: [["id", "ASC"]],
     });
+    
     const buildParentBranch = (categoryId, allCats) => {
       const node = allCats.find((cat) => cat.id === categoryId);
       if (!node) return null;
@@ -78,11 +79,24 @@ export const getCategoryById = async (req, res) => {
         parentCategory: buildParentBranch(node.parentId, allCats),
       };
     };
+    
+    const buildSubCategories = (categoryId, allCats) => {
+      const children = allCats.filter((cat) => cat.parentId === categoryId);
+      return children.map((child) => ({
+        ...child.toJSON(),
+        subCategories: buildSubCategories(child.id, allCats)
+      }));
+    };
+    
     const parentBranch = buildParentBranch(category.parentId, allCategories);
+    const subCategories = buildSubCategories(category.id, allCategories);
+    
     const result = {
       ...category.toJSON(),
-      parentCategory: parentBranch
+      parentCategory: parentBranch,
+      subCategories: subCategories
     };
+    
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: "Error fetching category", error });
