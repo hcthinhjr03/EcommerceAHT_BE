@@ -5,6 +5,12 @@ class Customer extends Model {
   getFullName() {
     return this.fullName;
   }
+
+  static associate(models) {
+    if (models.Order) {
+      Customer.hasMany(models.Order, { foreignKey: 'customerId', as: 'orders' });
+    }
+  }
 }
 
 Customer.init(

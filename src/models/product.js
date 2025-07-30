@@ -13,7 +13,7 @@ class Product extends Model {
             });
         }
         if (models.OrderProduct) {
-            Product.hasMany(models.OrderProduct, { foreignKey: 'productId' });
+            Product.hasMany(models.OrderProduct, { foreignKey: 'productId', as: 'orderProducts' });
             Product.belongsToMany(models.Order, {
                 through: models.OrderProduct,
                 foreignKey: 'productId',

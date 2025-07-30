@@ -4,10 +4,10 @@ import { sequelize } from '../config/connection.js';
 class OrderProduct extends Model {
     static associate(models) {
         if (models.Order) {
-            OrderProduct.belongsTo(models.Order, { foreignKey: 'orderId' });
+            OrderProduct.belongsTo(models.Order, { foreignKey: 'orderId', as: 'order' });
         }
         if (models.Product) {
-            OrderProduct.belongsTo(models.Product, { foreignKey: 'productId' });
+            OrderProduct.belongsTo(models.Product, { foreignKey: 'productId', as: 'product' });
         }
     }
 }
