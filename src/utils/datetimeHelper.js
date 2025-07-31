@@ -1,4 +1,4 @@
-const formatDateTime = (isoString) => {
+export const formatDateTime = (isoString) => {
   const date = new Date(isoString);
   const vnDate = new Date(date.getTime());
 
@@ -13,5 +13,3 @@ const formatDateTime = (isoString) => {
 
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
-
-module.exports = { formatDateTime };
