@@ -1,6 +1,6 @@
 import { sequelize } from "../config/connection.js";
 import { models } from "../models/index.js";
-import { Op } from "sequelize";
+import { Op, or } from "sequelize";
 import { formatDateTime } from "../utils/datetimeHelper.js";
 
 export const getAllOrders = async (req, res) => {
@@ -94,18 +94,18 @@ export const getAllOrders = async (req, res) => {
       distinct: true,
     });
 
-    const formattedOrders = orders.rows.map((order) => ({
-      ...order.toJSON(),
-      createdAt: formatDateTime(order.createdAt),
-      updatedAt: formatDateTime(order.updatedAt),
-    }));
+    // const formattedOrders = orders.rows.map((order) => ({
+    //   ...order.toJSON(),
+    //   createdAt: formatDateTime(order.createdAt),
+    //   updatedAt: formatDateTime(order.updatedAt),
+    // }));
 
     return res.status(200).json({
       message: "Orders fetched successfully",
       totalCount: orders.count,
       page: parseInt(page) || 1,
       pageSize: limit,
-      data: formattedOrders,
+      data: orders.rows,
     });
   } catch (error) {
     return res.status(500).json({
@@ -143,15 +143,15 @@ export const getOrderById = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: `Order with id ${id} not found` });
     }
-    const formattedOrder = {
-      ...order.toJSON(),
-      createdAt: formatDateTime(order.createdAt),
-      updatedAt: formatDateTime(order.updatedAt),
-    };
+    // const formattedOrder = {
+    //   ...order.toJSON(),
+    //   createdAt: formatDateTime(order.createdAt),
+    //   updatedAt: formatDateTime(order.updatedAt),
+    // };
 
     return res.status(200).json({
       message: "Order fetched successfully",
-      order: formattedOrder,
+      order: order,
     });
   } catch (error) {
     return res.status(500).json({
@@ -257,18 +257,18 @@ export const getOrderByUserId = async (req, res) => {
       return res.status(404).json({ message: `No orders found for user ${userId}` });
     }
 
-    const formattedOrders = orders.rows.map((order) => ({
-      ...order.toJSON(),
-      createdAt: formatDateTime(order.createdAt),
-      updatedAt: formatDateTime(order.updatedAt),
-    }));
+    // const formattedOrders = orders.rows.map((order) => ({
+    //   ...order.toJSON(),
+    //   createdAt: formatDateTime(order.createdAt),
+    //   updatedAt: formatDateTime(order.updatedAt),
+    // }));
 
     return res.status(200).json({
       message: "Orders fetched successfully",
       totalCount: orders.count,
       page: parseInt(page) || 1,
       pageSize: limit,
-      data: formattedOrders,
+      data: orders.rows,
     });
   } catch (error) {
     return res.status(500).json({
