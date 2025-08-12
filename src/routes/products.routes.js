@@ -1,10 +1,13 @@
 import express from 'express';
-import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../controllers/productController.js';
+import { getAllProducts, getProductById, getBestSellerProducts, createProduct, updateProduct, deleteProduct } from '../controllers/productController.js';
 
 const router = express.Router();
 
 // GET /api/v1/products
 router.get('/', getAllProducts);
+
+// GET /api/v1/products/best-seller
+router.get('/best-seller', getBestSellerProducts);
 
 // GET /api/v1/products/:id
 router.get('/:id', getProductById);

@@ -1,4 +1,5 @@
 import { models } from "../models/index.js";
+import { sequelize } from "../config/connection.js";
 import { Op } from 'sequelize';
 
 export const getAllProducts = async (req, res) => {
@@ -11,6 +12,8 @@ export const getAllProducts = async (req, res) => {
       pageSize,
       sortField = "createdAt",
       sortBy = "desc",
+      fromAmount,
+      toAmount,
     } = req.query;
 
     const whereClause = {};
@@ -20,6 +23,17 @@ export const getAllProducts = async (req, res) => {
       whereClause.name = {
         [Op.like]: `%${name}%`,
       };
+    }
+
+    // --- 2.1. Lọc theo khoảng price ---
+    if (fromAmount || toAmount) {
+      whereClause.price = {};
+      if (fromAmount) {
+        whereClause.price[Op.gte] = Number(fromAmount);
+      }
+      if (toAmount) {
+        whereClause.price[Op.lte] = Number(toAmount);
+      }
     }
 
     // --- 3. Lọc theo category ---
@@ -273,5 +287,60 @@ export const deleteProduct = async (req, res) => {
     res.status(200).json({ message: `Product with id ${id} deleted successfully` });
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete product', error: error.message });
+  }
+};
+
+// Lấy sản phẩm bán chạy nhất (best seller)
+export const getBestSellerProducts = async (req, res) => {
+  try {
+    // Lấy top sản phẩm bán chạy nhất với phân trang
+    const { page = 1, pageSize = 10 } = req.query;
+    const limit = parseInt(pageSize);
+    const offset = (parseInt(page) - 1) * limit;
+
+    // Truy vấn tổng số lượng bán ra cho từng sản phẩm
+    const bestSellers = await models.OrderProduct.findAll({
+      attributes: [
+        'productId',
+        [sequelize.fn('SUM', sequelize.col('quantity')), 'totalSold']
+      ],
+      group: ['productId'],
+      order: [[sequelize.literal('totalSold'), 'DESC']],
+      limit,
+      offset,
+      raw: true
+    });
+
+    // Lấy tổng số sản phẩm bán chạy (cho phân trang)
+    const totalBestSellers = await models.OrderProduct.findAll({
+      attributes: ['productId'],
+      group: ['productId'],
+      raw: true
+    });
+
+    // Lấy chi tiết sản phẩm tương ứng
+    const productIds = bestSellers.map(item => item.productId);
+    const products = await models.Product.findAll({
+      where: { id: productIds },
+      include: [
+        { model: models.ProductImage, as: 'images' },
+        { model: models.Category, as: 'categories', through: { attributes: [] } }
+      ]
+    });
+
+    // Gắn thêm trường totalSold vào từng sản phẩm
+    const productsWithSold = products.map(product => {
+      const sold = bestSellers.find(item => item.productId === product.id)?.totalSold || 0;
+      return { ...product.toJSON(), totalSold: Number(sold) };
+    });
+
+    res.status(200).json({
+      total: totalBestSellers.length,
+      page: parseInt(page),
+      pageSize: limit,
+      data: productsWithSold
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch best seller products', error: error.message });
   }
 };
