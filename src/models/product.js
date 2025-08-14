@@ -88,6 +88,11 @@ Product.init({
             len: [0, 1000] // Description can be up to 1000 characters
         }
     },
+    isBestSeller: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

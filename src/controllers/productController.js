@@ -208,6 +208,7 @@ export const updateProduct = async (req, res) => {
     stock,
     discountPercent,
     description,
+    isBestSeller,
     images,
     categories
   } = req.body;
@@ -227,7 +228,8 @@ export const updateProduct = async (req, res) => {
       price,
       stock,
       discountPercent,
-      description
+      description,
+      isBestSeller
     });
 
     // 3. Cập nhật lại danh sách hình ảnh
@@ -293,52 +295,27 @@ export const deleteProduct = async (req, res) => {
 // Lấy sản phẩm bán chạy nhất (best seller)
 export const getBestSellerProducts = async (req, res) => {
   try {
-    // Lấy top sản phẩm bán chạy nhất với phân trang
     const { page = 1, pageSize = 10 } = req.query;
     const limit = parseInt(pageSize);
     const offset = (parseInt(page) - 1) * limit;
 
-    // Truy vấn tổng số lượng bán ra cho từng sản phẩm
-    const bestSellers = await models.OrderProduct.findAll({
-      attributes: [
-        'productId',
-        [sequelize.fn('SUM', sequelize.col('quantity')), 'totalSold']
-      ],
-      group: ['productId'],
-      order: [[sequelize.literal('totalSold'), 'DESC']],
-      limit,
-      offset,
-      raw: true
-    });
-
-    // Lấy tổng số sản phẩm bán chạy (cho phân trang)
-    const totalBestSellers = await models.OrderProduct.findAll({
-      attributes: ['productId'],
-      group: ['productId'],
-      raw: true
-    });
-
-    // Lấy chi tiết sản phẩm tương ứng
-    const productIds = bestSellers.map(item => item.productId);
-    const products = await models.Product.findAll({
-      where: { id: productIds },
+    const { count, rows } = await models.Product.findAndCountAll({
+      where: { isBestSeller: true },
       include: [
         { model: models.ProductImage, as: 'images' },
         { model: models.Category, as: 'categories', through: { attributes: [] } }
-      ]
-    });
-
-    // Gắn thêm trường totalSold vào từng sản phẩm
-    const productsWithSold = products.map(product => {
-      const sold = bestSellers.find(item => item.productId === product.id)?.totalSold || 0;
-      return { ...product.toJSON(), totalSold: Number(sold) };
+      ],
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']],
+      distinct: true
     });
 
     res.status(200).json({
-      total: totalBestSellers.length,
+      total: count,
       page: parseInt(page),
       pageSize: limit,
-      data: productsWithSold
+      data: rows
     });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch best seller products', error: error.message });
